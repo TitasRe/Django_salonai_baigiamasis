@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+{% load static %}
+
+  <h1>Mano užsakymai</h1>
+  <div class="container">
+    <div class="row">
+      {% for kliento_uzsakymo_obj in kliento_uzsakymu_list %}
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100">
+          <img src="{% if kliento_uzsakymo_obj.specialistas_id.cover %}{{ kliento_uzsakymo_obj.specialistas_id.cover.url }}{% else %}{% static 'img/no-image.png' %}{% endif %}" class="card-img-top" alt="{{ kliento_uzsakymo_obj.paslaugos_id.title }}">
+          <div class="card-body">
+            <h5 class="card-title">{{ kliento_uzsakymo_obj.paslaugos_id.title }}</h5>
+            <p class="card-text">Salonas: {{ kliento_uzsakymo_obj.paslaugos_id.salono_id }}</p>
+            <p class="card-text">Jūsų specialistas: {{ kliento_uzsakymo_obj.specialistas_id }}</p>
+            <p class="card-text">Laikas: {{ kliento_uzsakymo_obj.laikas_nuo }}</p>
+          </div>
+          <div class="card-footer">
+            <a href="{% url 'mano-uzsakymas-delete_n' kliento_uzsakymo_obj.id %}" class="btn btn-danger">Atšaukti užsakyma</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}

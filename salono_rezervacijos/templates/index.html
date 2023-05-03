@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+{% load static %}
+<img src="{% static 'img/modernus.jpg' %}" class="img-fluid"
+         style="width: 1000px; height: 500px;">
+<style>
+    h1 {
+        font-size: 2.5em;
+        margin-bottom: 1.5em;
+    }
+
+    li {
+        font-size: 1.2em;
+        margin-bottom: 0.5em;
+    }
+
+    ul {
+        margin-bottom: 1.5em;
+    }
+
+    p {
+        font-size: 1.2em;
+        margin-bottom: 0.5em;
+    }
+
+    .stats {
+        margin-top: 2em;
+        border: 1px solid #ccc;
+        padding: 1em;
+        font-size: 1.2em;
+    }
+
+    .stats li {
+        margin-bottom: 0.5em;
+    }
+
+    .image {
+        margin-top: 2em;
+        text-align: center;
+    }
+
+    .image img {
+        max-width: 100%;
+        height: auto;
+    }
+</style>
+<h1>Dabar 2023-ieji, rezervuok laiką pas mus!</h1>
+<li>
+    Rezervuok laiką ir tvarkyk savo užsakymus kur bebūtum.
+</li>
+<li>
+    Patikrink kokie vizitai tavęs laukią ateityje.
+</li>
+<li>
+    Per kelias sekundes užsirašyk savo mėgiamai paslaugai.
+</li>
+<div class="stats">
+    <p>Mes turime :</p>
+    <ul>
+        <li>Salonų skaičius: {{ num_salonai_cntx }}</li>
+        <li>Specialistų skaičius: {{ num_specialistai_cntx }}</li>
+    </ul>
+    <p>Jūs apsilankėte {{ num_visits_cntx }} kartą/ų</p>
+</div>
+{% endblock %}

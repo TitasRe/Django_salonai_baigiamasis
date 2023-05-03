@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ specialistas.vardas }} {{ specialistas.pavarde }}</h1>
+<p>Salonas: <a href="{% url 'salonas_n' specialistas.paslaugos_id.salono_id.id %}">{{ specialistas.paslaugos_id.salono_id }}</a></p>
+<p><strong>Patirtis:</strong> {{ specialistas.patirtis }} Metai</p>
+<p><strong>Paslaugos:</strong> {{ specialistas.paslaugos_id.title }}</p>
+<p><strong>Aprašymas:</strong> {{ specialistas.description | safe }}</p>
+<div>
+    {% if user.is_authenticated %}
+    <div class="">
+        <br>
+        <h4>Palikite atsiliepimą:</h4>
+        <form action="" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form.content.label_tag }}
+                {{ form.content }}
+            </div>
+            <input type="submit" value="Išsaugoti" class="btn btn-primary">
+            <br>
+        </form>
+    </div>
+    {% endif %}
+    <br>
+    <h4>Klientų atsiliepimai:</h4>
+    {% if specialistas.specialistoreview_set.all %}
+    <hr>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Vardas</th>
+          <th>Data</th>
+          <th>Atsiliepimas</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for atsiliepimo_obj in specialistas.specialistoreview_set.all %}
+        <tr>
+          <td>{{ atsiliepimo_obj.klientas }}</td>
+          <td>{{ atsiliepimo_obj.date_created }}</td>
+          <td>{{ atsiliepimo_obj.content }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p>Specialistas atsiliepimų neturi!</p>
+    {% endif %}
+</div>
+{% endblock %}

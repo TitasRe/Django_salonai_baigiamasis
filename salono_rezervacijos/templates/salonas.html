@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="container">
+    <div class="salon-info">
+      <h1>{{ salonas_cntx.pavadinimas }}</h1>
+      <div class="address">
+         <p>Miestas: {{ salonas_cntx.miestas }}</p>
+        <p>Adresas: {{ salonas_cntx.adresas }}</p>
+      </div>
+      <hr>
+      <div class="services">
+        <h2>Mūsų paslaugos:</h2>
+        <ul>
+          {% for paslauga_obj in salonas_cntx.paslauga_rn.all %}
+            <li>
+              <a href="{% url 'paslauga-detail_n' paslauga_obj.id %}">
+                {{ paslauga_obj.title }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="description">
+        <h2>Apie mus:</h2>
+        <p>{{ salonas_cntx.description | safe }}</p>
+      </div>
+    </div>
+    <p>Mus galite rasti čia</p>
+<iframe
+  width="800"
+  height="450"
+  frameborder="5" style="border:0; margin:auto; display:block;"
+  src="https://www.google.com/maps/embed/v1/place?key=AIzaSyBj2aOqYys5M788isYEfBA6SrBg1VweQ5E&zoom=15&q={{ salonas_cntx.adresas|urlencode }}"></iframe>
+  </div>
+{% endblock %}
+

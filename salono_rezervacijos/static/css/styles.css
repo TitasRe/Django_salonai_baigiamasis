@@ -1,0 +1,30 @@
+.sidebar-nav {
+    list-style: none;
+    margin-top: 5px
+}
+
+.card {
+    height: 430px;
+    margin-top: 15px;
+    margin-right: 15px;
+    margin-bottom: 15px;
+    width: 300px;
+}
+
+.card-img-top {
+height: 75%;
+object-fit: contain;
+}
+textarea {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  background-color: #f8f8f8;
+  resize: none;
+}
+body {
+  background-color: #f2f2f2;
+}

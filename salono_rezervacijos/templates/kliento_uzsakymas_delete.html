@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div>
+    <form action="" method="post">
+        {% csrf_token %}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">Atšaukti paslaugos užsakymą</legend>
+        <h2>Ar tikrai norite atšaukti savo užsakymą?</h2>
+            <br>
+            <h4>Užsakymo numeris :{{ object.id }}</h4>
+
+            <p>{{ object.paslaugos_id }}</p>
+        </fieldset>
+        <div class="form-group">
+            <button class="btn btn-outline-danger" type="submit">Ištrinti</button>
+            <a href="{% url 'mano_uzsakymai_n' %}" class="btn btn-outline-secondary" >Atgal</a>
+        </div>
+
+    </form>
+
+</div>
+{% endblock %}

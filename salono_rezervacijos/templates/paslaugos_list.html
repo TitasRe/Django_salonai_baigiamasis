@@ -1,0 +1,47 @@
+{% extends "base.html" %} {% block content %}
+{% load static %}
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; pirmas</a>
+                <a href="?page={{ page_obj.previous_page_number }}">&lsaquo; atgal</a>
+            {% endif %}
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <span class="current">{{ num }}</span>
+                {% else %}
+                    <a href="?page={{ num }}">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">pirmyn &rsaquo;</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">paskutinis &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+<h1>Visos atliekamos paslaugos:</h1>
+{% if paslaugos_list %}
+<div class="row">
+    {% for paslauga_obj in paslaugos_list %}
+    <div class="col-sm-6 col-md-3 d-flex align-items-stretch">
+        <div class="card mb-4 shadow-sm">
+            {% if paslauga_obj.cover %}
+            <img src="{{ paslauga_obj.cover.url }}" class="card-img-top">
+            {% else %}
+            <img src="{% static 'img/no-image.png' %}" class="card-img-top">
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-subtitle mb-2 text-muted">Salonas: {{ paslauga_obj.salono_id.pavadinimas }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">{{ paslauga_obj.kaina }}</h6>
+                <p class="card-text">
+                    <a href="{% url 'paslauga-detail_n' paslauga_obj.id %}">{{ paslauga_obj.title }}</a>
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p>Paslaugų nėra!</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block title %}
+    <title>Salono rezervacijos</title>
+    {% endblock %}
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link
+            rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+            integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+            crossorigin="anonymous"
+    />
+    <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <!-- Add additional CSS in static file -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}"/>
+</head>
+<body>
+<!-- Navigation -->
+
+<nav
+        class="navbar navbar-expand-lg navbar-light bg-light static-top mb-5 shadow"
+>
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'index_name' %}">
+
+            Grožio salonai</a
+        >
+        <button
+                class="navbar-toggler"
+                type="button"
+                data-toggle="collapse"
+                data-target="#navbarResponsive"
+                aria-controls="navbarResponsive"
+                aria-expanded="false"
+                aria-label="Toggle navigation"
+        >
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ml-auto">
+                {% if user.is_authenticated %} <!-- user turi daug metodu -->
+                <li>
+                    <a class="nav-link" href="{% url 'profilis_n' %}">
+                        <!-- user logo -->
+                        <svg class="bi bi-person" width="1.5em" height="1.5em" viewBox="0 0 16 16" fill="currentColor"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd"
+                                  d="M13 14s1 0 1-1-1-4-6-4-6 3-6 4 1 1 1 1h10zm-9.995-.944v-.002.002zM3.022 13h9.956a.274.274 0 00.014-.002l.008-.002c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664a1.05 1.05 0 00.022.004zm9.974.056v-.002.002zM8 7a2 2 0 100-4 2 2 0 000 4zm3-2a3 3 0 11-6 0 3 3 0 016 0z"
+                                  clip-rule="evenodd"/>
+                        </svg>
+
+
+                        {{ user.get_username }}</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'mano_uzsakymai_n' %}">Mano Užsakymai</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'logout' %}">
+                        <!-- user logout-->
+                        <svg width="1.5em" height="1.5em" viewBox="0 0 24 24" fill="none"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <g clip-path="url(#clip0_1199_138)">
+                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                      d="M2.11256 0.75C2.1001 0.75 2.08765 0.75031 2.07522 0.75093C1.49768 0.779719 0.955076 1.03617 0.566199 1.46413C0.181579 1.88741 -0.021668 2.44436 -0.000443399 3.01539V20.9848C-0.0213439 21.5557 0.181993 22.1124 0.566503 22.5356C0.955205 22.9634 1.49744 23.2199 2.0747 23.249C2.08731 23.2497 2.09993 23.25 2.11256 23.25H14.3856C14.398 23.25 14.4105 23.2497 14.4229 23.2491C15.0004 23.2203 15.543 22.9639 15.9321 22.5361C16.3169 22.1129 16.5204 21.556 16.4996 20.9849V16.5C16.4996 16.0858 16.1638 15.75 15.7496 15.75C15.3353 15.75 14.9996 16.0858 14.9996 16.5V21C14.9996 21.0045 14.9996 21.0089 14.9997 21.0134C14.9997 21.0164 14.9998 21.0194 14.9999 21.0225L15.0003 21.0338C15.0085 21.2153 14.9445 21.3926 14.8223 21.527C14.7035 21.6576 14.5392 21.7373 14.3635 21.75H2.13496C1.95943 21.7372 1.79527 21.6574 1.67665 21.5268C1.55454 21.3925 1.4906 21.2152 1.49879 21.0338C1.4993 21.0226 1.49956 21.0113 1.49956 21V3C1.49956 2.98854 1.49929 2.97709 1.49877 2.96564C1.49046 2.78437 1.55431 2.60719 1.67634 2.47288C1.79495 2.34235 1.95913 2.26267 2.13465 2.25H14.3635C14.5392 2.26268 14.7035 2.34241 14.8223 2.47302C14.9445 2.60741 15.0085 2.78473 15.0003 2.96619C14.9998 2.97745 14.9996 2.98873 14.9996 3V7.5C14.9996 7.91421 15.3353 8.25 15.7496 8.25C16.1638 8.25 16.4996 7.91421 16.4996 7.5V3.01514C16.5204 2.444 16.3169 1.88707 15.9321 1.46387C15.543 1.03605 15.0004 0.779717 14.4229 0.75093C14.4105 0.75031 14.398 0.75 14.3856 0.75H2.11256ZM18.9697 7.72367C19.2626 7.43077 19.7374 7.43077 20.0303 7.72367L23.7803 11.4737C23.8522 11.5456 23.9065 11.6285 23.9431 11.7169C23.9798 11.8053 24 11.9023 24 12.004C24 12.1959 23.9268 12.3879 23.7803 12.5343L20.0303 16.2843C19.7374 16.5772 19.2626 16.5772 18.9697 16.2843C18.6768 15.9914 18.6768 15.5166 18.9697 15.2237L21.4393 12.754H7.5C7.08579 12.754 6.75 12.4182 6.75 12.004C6.75 11.5898 7.08579 11.254 7.5 11.254H21.4393L18.9697 8.78433C18.6768 8.49143 18.6768 8.01656 18.9697 7.72367Z"
+                                      fill="#767676"/>
+                            </g>
+                            <defs>
+                                <clipPath id="clip0_1199_138">
+                                    <rect width="24" height="24" fill="white"/>
+                                </clipPath>
+                            </defs>
+                        </svg>
+                        Atsijungti</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'login' %}?next={{ request.path }}">
+                        <svg width="1.5em" height="1.5em" viewBox="0 0 24 24" fill="none"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 17C6 17.93 6 18.395 6.10222 18.7765C6.37962 19.8117 7.18827 20.6204 8.22354 20.8978C8.60504 21 9.07003 21 10 21H16.2C17.8802 21 18.7202 21 19.362 20.673C19.9265 20.3854 20.3854 19.9265 20.673 19.362C21 18.7202 21 17.8802 21 16.2V7.8C21 6.11984 21 5.27976 20.673 4.63803C20.3854 4.07354 19.9265 3.6146 19.362 3.32698C18.7202 3 17.8802 3 16.2 3H10C9.07003 3 8.60504 3 8.22354 3.10222C7.18827 3.37962 6.37962 4.18827 6.10222 5.22354C6 5.60504 6 6.07003 6 7M12 8L16 12M16 12L12 16M16 12H3"
+                                  stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Prisijungti</a>
+                    <li class="nav-item">
+                    <a class="nav-link" href="{% url 'register_n' %}?next={{request.path}}">Registruotis</a>
+                </li>
+
+                    {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'index_name' %}">Pradžia</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'salonai_n' %}">Salonai</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'specialistai_n' %}">Specialistai</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'paslaugos_n' %}">Paslaugos</a>
+                </li>
+
+            </ul>
+
+            <form
+                    class="form-inline my-2 my-lg-0"
+                    action="{% url 'search_n' %}"
+                    method="get"
+            >
+                <input
+                        class="form-control mr-sm-2"
+                        type="search"
+                        placeholder="Paieška"
+                        aria-label="Search"
+                        name="search_text"
+                />
+                <button class="btn btn-outline-info my-2 my-sm-0" type="submit">
+                    Ieškoti
+                </button>
+            </form>
+        </div>
+    </div>
+</nav>
+<div class="container">
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error'%}danger{% elif message.tags == 'info'%}success{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    {% endif %}
+    {% block content %}{% endblock %}</div>
+
+<script
+        src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"
+></script>
+<script
+        src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"
+></script>
+<script
+        src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+        integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+        crossorigin="anonymous"
+></script>
+</body>
+</html>

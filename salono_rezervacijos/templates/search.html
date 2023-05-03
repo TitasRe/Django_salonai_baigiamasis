@@ -1,0 +1,15 @@
+{% extends "base.html" %} {% block content %}
+<h1>Paieskos pagal "{{ query_text_cntx }}" rezultatai:</h1>
+<hr />
+{% if query_result_cntx %}
+<ul>
+    {% for salonas_obj in query_result_cntx %}
+    <li>
+       <a href="{% url 'salonas_n' salonas_obj.id %}"> {{ salonas_obj.pavadinimas }}</a>, {{ salonas_obj.miestas}}
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>Nieko nerasta...</p>
+{% endif %}
+{% endblock %}

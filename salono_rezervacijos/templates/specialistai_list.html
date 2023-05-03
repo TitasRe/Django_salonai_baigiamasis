@@ -1,0 +1,50 @@
+{% extends "base.html" %} {% block content %}
+{% load static %}
+{% if is_paginated %}
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; pirmas</a>
+                <a href="?page={{ page_obj.previous_page_number }}">&lsaquo; atgal</a>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <span class="current">{{ num }}</span>
+                {% else %}
+                    <a href="?page={{ num }}">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">pirmyn &rsaquo;</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">paskutinis &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+{% endif %}
+<h1>Specialistų sarašas: {{ laikinas_kintamasis }}</h1>
+{% if specialistai_list %}
+<div class="row">
+    {% for specialistas_obj in specialistai_list %}
+    <div class="col-sm-6 col-md-3 d-flex align-items-stretch">
+        <div class="card mb-4 shadow-sm">
+            {% if specialistas_obj.cover %}
+            <img src="{{ specialistas_obj.cover.url }}" class="card-img-top">
+            {% else %}
+            <img src="{% static 'img/no-image.png' %}" class="card-img-top">
+            {% endif %}
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2 text-muted">{{ specialistas_obj.vardas }} {{ specialistas_obj.pavarde }}</h6>
+                <p class="card-text">
+                    <a href="{% url 'specialistas-detail_n' specialistas_obj.id %}">Sužinoti daugiau apie specialistą</a>
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p>Specialistų nėra!</p>
+{% endif %}
+{% endblock %}
