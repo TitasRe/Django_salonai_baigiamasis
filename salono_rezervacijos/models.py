@@ -9,6 +9,9 @@ from django.utils import timezone
 # Create your models here.
 
 class Salonas(models.Model):
+    """
+    Salono sukurimo modelis
+    """
     pavadinimas = models.CharField(max_length=255)
     miestas = models.CharField(max_length=255, blank=True)
     adresas = models.CharField(max_length=255)
@@ -24,6 +27,10 @@ class Salonas(models.Model):
 
 
 class Paslauga(models.Model):
+    """
+    Paslaugos sukurimo modelis kuris turi salonas foreignkey
+    Taip nueina i konkrecia paslauga
+    """
     title = models.CharField("Pavadinimas", max_length=200)
     summary = models.TextField("Aprašymas", max_length=1000, help_text="Paslaugos aprašymas")
     kaina = models.CharField('Paslaugu kaina', max_length=10)
@@ -42,6 +49,10 @@ class Paslauga(models.Model):
 
 
 class Specialistas(models.Model):
+    """
+    specialisto sukurimo modelis kuris turi,
+    foreignkey paslaugos ir kliento
+    """
     vardas = models.CharField(max_length=255)
     pavarde = models.CharField(max_length=255)
     patirtis = models.IntegerField()
@@ -60,6 +71,10 @@ class Specialistas(models.Model):
 
 
 class PaslaugosRezervacija(models.Model):
+    """
+    Paslaugos sukurimo modelis kurtis turi fereignkey, specialisto,
+    paslaugos ir kliento
+    """
     date_created = models.DateTimeField(default=timezone.now() + timezone.timedelta(hours=3))
     laikas_nuo = models.DateTimeField("Laikas nuo", null=True, blank=True)
     laikas_iki = models.DateTimeField("Laikas iki", null=True, blank=True)
@@ -78,6 +93,9 @@ class PaslaugosRezervacija(models.Model):
 
 
 class SpecialistoReview(models.Model):
+    """
+    Specialisto atsiliepimo modelis kuris turi foreignkey, specialisto ir kliento.
+    """
     date_created = models.DateTimeField(auto_now_add=True)
     content = models.TextField("Atsiliepimas", max_length=1000)
     specialistas_id = models.ForeignKey(Specialistas, on_delete=models.CASCADE, null=True, blank=True)
@@ -90,6 +108,9 @@ class SpecialistoReview(models.Model):
 
 
 class Profilis(models.Model):
+    """
+    profilio sukurimo modelis
+    """
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     nuotrauka = models.ImageField(default='profile_pics/default.png', upload_to="profile_pics")
 

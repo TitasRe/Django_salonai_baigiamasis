@@ -16,10 +16,12 @@ from datetime import datetime, timedelta, time
 
 # Create your views here.
 def index(request):
-    # suskaičiuojam eilutes kiekvienoje lentelėje
+    """
+    Atvaizduoja kiek salonu yra bei specialistu ir kiek kartu,
+    vartotojas apsilankė puslapį
+    """
     num_salonai = Salonas.objects.all().count()
     num_specialistai = Specialistas.objects.all().count()
-    # issikvieciam sesijos objekta ir prirasom jam apsilankymus
     num_visits = request.session.get('num_visits', 1)
     request.session['num_visits'] = num_visits + 1
 
@@ -33,6 +35,9 @@ def index(request):
 
 
 def salonai(request):
+    """
+    Atvaizduoja visus salonus ir juos supuslapiuoja
+    """
     paginator = Paginator(Salonas.objects.all(), 3)
     page_number = request.GET.get('page')
     paged_salonai = paginator.get_page(page_number)
@@ -44,6 +49,9 @@ def salonai(request):
 
 
 def salonas(requst, salonas_id):
+    """
+    Atvaizduoja viena konkretu salona
+    """
     salonas = get_object_or_404(Salonas, pk=salonas_id)
     data = {
         'salonas_cntx': salonas
@@ -52,6 +60,9 @@ def salonas(requst, salonas_id):
 
 
 class PaslaugosListView(generic.ListView):
+    """
+    Atvaizduoja visas atliekamas paslauga ir supuslapiuoja
+    """
     model = Paslauga
     paginate_by = 5
     context_object_name = 'paslaugos_list'
@@ -59,14 +70,21 @@ class PaslaugosListView(generic.ListView):
 
 
 class PaslaugoaDetailView(generic.edit.FormMixin, generic.DetailView):
+    """
+    Paslaugos detalus view kuriame implementuota paslaugos uzsakymo forma
+    su pasirinkimais datos ir laiko. Norima paslaugos rezervacija patikrinama butent
+    su tais kurie specialistai atlieka sia paslauga ir ar ju esamos rezervacijos nesikera su norima rezervacija
+    """
     model = Paslauga
     context_object_name = 'paslauga'
     template_name = 'paslauga_detail.html'
     form_class = PaslaugosRezervacijaForm
+
     # sekmes atvieju nuves cia
     def get_success_url(self):
         return reverse('paslauga-detail_n', kwargs={'pk': self.object.id})
-    #tikrinu ar forma validi ar ne
+
+    # tikrinu ar forma validi ar ne
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         form = self.get_form()
@@ -80,95 +98,57 @@ class PaslaugoaDetailView(generic.edit.FormMixin, generic.DetailView):
 
     def form_valid(self, form):
         paslauga = self.object
-        #pasiemu tiksliai is laukio laikas_nuo tai ka user pasirinks
-        # date_nuo = form.cleaned_data['date_nuo']
         laikas_nuo = form.cleaned_data['laikas_nuo']
-        # print("KKKKKKKKKKKKKKKKKKKKKKKKKKK")
-        # print(laikas_nuo)
         dirbam_nuo = time(8, 0, 0)
-        dirbam_iki = time(17, 0, 0)
+        dirbam_iki = time(18, 0, 0)
         if laikas_nuo.time() > dirbam_iki or laikas_nuo.time() < dirbam_nuo:
-            messages.error(self.request, f'Salonas dirba nuo 8:00 iki 17:00')
+            messages.error(self.request, f'Salonas dirba nuo 8:00 iki 19:00')
             return redirect(reverse('paslauga-detail_n', kwargs={'pk': self.object.id}))
-        # print(timezone.localtime() + timedelta(hours=3), "Dabartinis laikas")
-        # print(paslauga)
-        #pasiemu visus specialistus kurie atlieka sia paslauga!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        visi_paslaugos_specialistai = Specialistas.objects.filter(paslaugos_id=paslauga)  # .filter(status='g')
-        # print(visi_paslaugos_specialistai)
-        #patikrinu ar yra specialistu kurie atlieka sia paslauga
+        if laikas_nuo.date().weekday() in [5, 6]:
+            messages.error(self.request, f'Salonas nedirba savaitgaliais')
+            return redirect(reverse('paslauga-detail_n', kwargs={'pk': self.object.id}))
+        # pasiemu visus specialistus kurie atlieka sia paslauga!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        visi_paslaugos_specialistai = Specialistas.objects.filter(paslaugos_id=paslauga)
         if len(visi_paslaugos_specialistai) < 1:
             messages.error(self.request, f'Specialistų teikiančią šią paslaugą šiuo metu neturime')
             return redirect(reverse('paslauga-detail_n', kwargs={'pk': self.object.id}))
         listas_specialistu_kurieturirezervacijas_netinka = []
         listas_specialistu_kurie_turi_laisvu_laiku_kada_zmogus_iesko = []
         listas_specialistu_kurie_is_vis_neturi_jokiu_rezervaciju = []
-        # print("Laikas nuo + 1")
-        # print(laikas_nuo - timedelta(hours=3))
         if laikas_nuo - timedelta(hours=3, minutes=1) < timezone.localtime():
-            # print(timezone.localtime())
             messages.error(self.request, f'Negalite užsisakyti paslaugų į praeitį')
             return redirect(reverse('paslauga-detail_n', kwargs={'pk': self.object.id}))
-        print("!@!!!!!!!!!!!!!!")
-        #kad visos paslaugos trunka 59 min
+        # kad visos paslaugos trunka 59 min
         form.instance.laikas_iki = laikas_nuo + timedelta(minutes=59)
-        print("Laikas nuo + 1")
-        print(laikas_nuo)
-        for paslaugos_specialistas in visi_paslaugos_specialistai:
-            if paslaugos_specialistas.spec_paslaugos_rez_rn.all():
+        for paslaugos_specialistas in visi_paslaugos_specialistai:  # visi spec kurie atlieka ta paslauga
+            if paslaugos_specialistas.spec_paslaugos_rez_rn.all():  # tikrinu specialisto rezervacija
                 for paslaugos_rezervacija in paslaugos_specialistas.spec_paslaugos_rez_rn.all():
-                    print(paslaugos_specialistas)
-                    print("PAAASlaugos rezervacija!!!")
-                    print(paslaugos_rezervacija.laikas_nuo)
+                    # arba pries arba po rezervacijos
                     if laikas_nuo > paslaugos_rezervacija.laikas_iki or laikas_nuo + timedelta(
-                            minutes=59) < paslaugos_rezervacija.laikas_nuo:  # + timedelta(hours=1):
-                        print("IFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFAS")
-                        print(paslaugos_rezervacija.laikas_iki)
-                        print(laikas_nuo)
-                        print("--------------------------")
+                            minutes=59) < paslaugos_rezervacija.laikas_nuo:
                         listas_specialistu_kurie_turi_laisvu_laiku_kada_zmogus_iesko.append(paslaugos_specialistas)
                     else:
                         listas_specialistu_kurieturirezervacijas_netinka.append(paslaugos_specialistas)
-                        print(paslaugos_rezervacija.laikas_nuo.date())
-                        print(laikas_nuo.date())
-                        print(paslaugos_rezervacija.laikas_nuo, 'paslaugos_rezervacija.laikas_nuo')
-                        print(laikas_nuo)
-                        print(paslaugos_rezervacija.laikas_iki)
             else:
-                listas_specialistu_kurie_is_vis_neturi_jokiu_rezervaciju.append(paslaugos_specialistas) #pridedu specialistus kurie neturi rezervaciju
-        print(listas_specialistu_kurieturirezervacijas_netinka)  # listas specialistu kurie rezervuoti butent ta diena kuria nori user
-        print(listas_specialistu_kurie_turi_laisvu_laiku_kada_zmogus_iesko)  # listas specialistu kurie  turi laisva laika butent tuo metu kai nori user
-        print(listas_specialistu_kurie_is_vis_neturi_jokiu_rezervaciju)  # listas specialistu kurie  is viso neturi jokiu rezervaciju
+                listas_specialistu_kurie_is_vis_neturi_jokiu_rezervaciju.append(
+                    paslaugos_specialistas)  # pridedu specialistus kurie neturi rezervaciju
         if len(listas_specialistu_kurie_is_vis_neturi_jokiu_rezervaciju) >= 1:
-            paslaugos_specialistas = listas_specialistu_kurie_is_vis_neturi_jokiu_rezervaciju[0] #tas ir bus specialistas
-            print(paslaugos_specialistas)
+            paslaugos_specialistas = listas_specialistu_kurie_is_vis_neturi_jokiu_rezervaciju[
+                0]  # tas ir bus specialistas
         else:
-            print([item for item in listas_specialistu_kurie_turi_laisvu_laiku_kada_zmogus_iesko if
-                   item not in listas_specialistu_kurieturirezervacijas_netinka])  # gaunu rezervacijas kuriu laikai nera uzimti
-            pasl_specialistai_laisvi = [item for item in listas_specialistu_kurie_turi_laisvu_laiku_kada_zmogus_iesko if item not in listas_specialistu_kurieturirezervacijas_netinka]
-            print(pasl_specialistai_laisvi)
+            pasl_specialistai_laisvi = []
+            for item in listas_specialistu_kurie_turi_laisvu_laiku_kada_zmogus_iesko:
+                if item not in listas_specialistu_kurieturirezervacijas_netinka:
+                    pasl_specialistai_laisvi.append(item)
             if len(pasl_specialistai_laisvi) < 1:
                 messages.error(self.request, f'Laisvų specialistų pasirinktu laiku nėra!')
                 return redirect(reverse('paslauga-detail_n', kwargs={'pk': self.object.id}))
             paslaugos_specialistas = pasl_specialistai_laisvi[0]
-        print(paslauga)
-        print(type(paslauga))
-        #patikrinu ar jau yra rezervaciju
-        existing_rezervacijos = PaslaugosRezervacija.objects.filter(
-            paslaugos_id=paslauga,
-            specialistas_id=paslaugos_specialistas,
-            laikas_nuo__lte=laikas_nuo,
-            laikas_iki__gte=form.instance.laikas_iki,
-        )
 
-        if laikas_nuo.date() < timezone.localdate(): #patikrinu ar nera praeities laikas
+        if laikas_nuo.date() < timezone.localdate():  # patikrinu ar nera praeities data
             messages.error(self.request, f'Pasirinktas laikas atbuline data negalimas ')
             return redirect(reverse('paslauga-detail_n', kwargs={'pk': self.object.id}))
 
-        if existing_rezervacijos.exists(): #patikrinu ar jau yra uzimtas laikas ir jei yra kad nepriskirtu vel
-            messages.error(self.request,
-                           f'Laikas {laikas_nuo} užimtas! Bandykite dar kartą')
-            return redirect(reverse('paslauga-detail_n', kwargs={'pk': self.object.id}))
-        # nurodau koks specialistas kokia paslauga ir t.t
         form.instance.specialistas_id = paslaugos_specialistas
         form.instance.paslaugos_id = paslauga
         form.instance.klientas = self.request.user
@@ -181,9 +161,13 @@ class PaslaugoaDetailView(generic.edit.FormMixin, generic.DetailView):
 
 
 class UserReservations(LoginRequiredMixin, generic.ListView):
+    """
+    Konkretaus vartotojo uzsakymai, kuris yra prisijunges
+    Ir yra rikiuojamos pagal laika
+    """
     model = PaslaugosRezervacija
     template_name = 'kliento_uzsakymai.html'
-    context_object_name = 'kliento_uzsakymu_list'  #šiaip sugeneruoja automatiškai bet galim patys pasivadinti kaip norim
+    context_object_name = 'kliento_uzsakymu_list'  # šiaip sugeneruoja automatiškai bet galim patys pasivadinti kaip norim
     paginate_by = 10
 
     def get_queryset(self):
@@ -192,36 +176,40 @@ class UserReservations(LoginRequiredMixin, generic.ListView):
 
 
 class UzsakymasByUserDeleteView(LoginRequiredMixin, UserPassesTestMixin, generic.DeleteView):
+    """
+    Leidzia varotojui istrinti uzsakyma
+    Bei patikrina ar tikrai tas vartotojas
+    """
     model = PaslaugosRezervacija
     success_url = "/salono_rezervacijos/mano_uzsakymai"
     template_name = "kliento_uzsakymas_delete.html"
 
-    # kad tik tas useris kuris gali prisijunges gali keisti.
     def test_func(self):
-        # paiims is view objektą kad galetumem patikrinti
         uzsakymasinstance = self.get_object()
         return self.request.user == uzsakymasinstance.klientas
 
 
-# class UzsakymasByUserDetailView(LoginRequiredMixin, generic.DetailView):  # per mygtuka
-#     model = PaslaugosRezervacija
-#     template_name = 'kliento_uzsakymai.html'
-
-class SpecialistaiListView(generic.ListView):  # listview = select all
-    model = Specialistas  # is kokio modelio bus formuotojamas view
-    paginate_by = 4  # čia kiek matysim vienam puslapi specialistu
+class SpecialistaiListView(generic.ListView):
+    """
+    Visu specialistu atvaizdavimas
+    """
+    model = Specialistas
+    paginate_by = 4
     context_object_name = 'specialistai_list'
     template_name = "specialistai_list.html"
 
 
-class SpecialistasDetailView(generic.edit.FormMixin, generic.DetailView):  # detailview = pagal PK grazina 1 eilute
+class SpecialistasDetailView(generic.edit.FormMixin, generic.DetailView):
+    """
+    Atvaziduoja konkretu specialista ir yra atsiliepimo forma
+    """
     model = Specialistas
     context_object_name = 'specialistas'
     template_name = 'specialistas_detail.html'
     form_class = SpecialistasReviewForm
 
-    def get_success_url(self):  # kwargs paduodam i URL PK arba ID
-        return reverse('specialistas-detail_n', kwargs={'pk': self.object.id})  # nustatom endoinpta is URLS
+    def get_success_url(self):
+        return reverse('specialistas-detail_n', kwargs={'pk': self.object.id})
 
     def post(self, request, *args, **kwargs):
 
@@ -238,16 +226,21 @@ class SpecialistasDetailView(generic.edit.FormMixin, generic.DetailView):  # det
         form.instance.klientas = self.request.user
 
         form.save()
-        messages.info(self.request, f'Atsiliepimas sekmingai paskelbtas! :)')
+        messages.info(self.request, f'Atsiliepimas sekmingai paskelbtas!')
         return super().form_valid(form)
 
 
 def search(request):
+    """
+    Pagal ka vartotojas gales ieskoti
+    """
     query_text = request.GET['search_text']
     query_result = Salonas.objects.filter(
         Q(pavadinimas__icontains=query_text) |
         Q(miestas__icontains=query_text) |
         Q(paslauga_rn__title__icontains=query_text) |
+        Q(paslauga_rn__specialistas_rn__vardas__icontains=query_text) |
+        Q(paslauga_rn__specialistas_rn__pavarde__icontains=query_text) |
         Q(paslauga_rn__specialistas_rn__vardas__icontains=query_text) |
         Q(paslauga_rn__specialistas_rn__pavarde__icontains=query_text))
     data = {
@@ -257,42 +250,41 @@ def search(request):
     return render(request, "search.html", context=data)
 
 
-@csrf_protect  # butinai kad veiktu su browser
+@csrf_protect
 def register(request):
-    # tikrininam ar GET ar POST metodas
+    """
+    Apdoroja registracijos forma
+    """
     if request.method == 'POST':
         vartotojas = request.POST['username']
         emailas = request.POST['email']
         passwordas = request.POST['password']
         passwordas2 = request.POST['password2']
-        # tikrinam ar sutampa slaptažodis
         if passwordas == passwordas2 and len(passwordas) >= 6:
-            # tikrinam ar vartotojas jau egzistuoja
-            if User.objects.filter(username=vartotojas).exists():  # gražina true arba false
-                # Jeigu user jau egzistuoja siunčiam šia žinute
+            if User.objects.filter(username=vartotojas).exists():
                 messages.error(request, f'Vartotojo vardas {vartotojas} jau egzistuoja')
-                # Ir forma paduodam iš naujo
                 return redirect('register_n')
-            else:  # Tikrinam email
+            else:
                 if User.objects.filter(email=emailas).exists():
                     messages.error(request, f"Toks emailas: {emailas} jau egzistuoja")
                     return redirect('register_n')
-                else:  # tada tiesiog sukuriam nauja vartotoja
+                else:
                     User.objects.create_user(username=vartotojas, email=emailas, password=passwordas)
                     messages.info(request, f"Vartotojas {vartotojas} sukurtas sėkmingai")
                     messages.info(request, f"Vartotojas su email: {emailas} sukurtas sėkmingai")
-                    return redirect('login') #nukreipimas i login puslpai
-        else:  # kai slaptazodis nesutampa
+                    return redirect('login')
+        else:
             messages.error(request, f'Nesutampa slaptažodžiai')
-            # paleidžiam forma iš naujo
             return redirect('register_n')
 
-    # Get rezultatas pries uzpildant forma!
     return render(request, 'registration/register.html')
 
 
 @login_required
 def profilis(request):
+    """
+    Profilio sukurimui ir atnaujinimui.
+    """
     if request.method == 'POST':
         u_form = UserUpdateForm(request.POST, instance=request.user)
         p_form = ProfilisUpdateForm(request.POST, request.FILES,

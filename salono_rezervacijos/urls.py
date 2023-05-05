@@ -1,6 +1,5 @@
 from django.urls import path, include
 from django.contrib import admin
-# . reiskia kad kreipiames i tame pacia folderyje esanti faila
 from . import views
 
 urlpatterns = [

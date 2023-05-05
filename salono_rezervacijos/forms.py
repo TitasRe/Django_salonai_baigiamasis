@@ -1,4 +1,3 @@
-# importuojam klase kuriai kuriam forma
 from .models import Profilis, SpecialistoReview, PaslaugosRezervacija
 from django.forms import DateTimeInput
 
@@ -9,9 +8,7 @@ from django import forms
 class SpecialistasReviewForm(forms.ModelForm):
     class Meta:
         model = SpecialistoReview
-        # Nematomi fields bet ju reikia kad galetume suristi ir paimti is views duomenu
         fields = ('content', 'specialistas_id', 'klientas')
-        # padarom slaptus
         widgets = {'specialistas_id': forms.HiddenInput(),
                    'klientas': forms.HiddenInput(),
                    }
@@ -34,7 +31,6 @@ class UserUpdateForm(forms.ModelForm):
     email = forms.EmailField()
 
     class Meta:
-        # nurodzius modeli surisama su ta klase
         model = User
         fields = ['username', 'email']
 

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Rezervacijos patvirtinimas</title>
+</head>
+<body>
+    <p>Sveiki!</p>
+    <p>Jūs sėkmingai užsirezervavote paslaugą.</p>
+    <p>Rezervacijos informacija:</p>
+    <ul>
+        <li>Paslauga: {{ paslaugos_rezervacija.paslaugos_id.title }}</li>
+        <li>Data: {{ paslaugos_rezervacija.laikas_nuo|date:"F j, Y" }} {{ paslaugos_rezervacija.laikas_nuo|time:"g:i A" }}</li>
+        <li>Specialistas: {{ paslaugos_rezervacija.specialistas_id.vardas }} {{ paslaugos_rezervacija.specialistas_id.pavarde }}</li>
+    </ul>
+    <p>Ačiū, kad naudojatės mūsų paslaugomis.</p>
+</body>
+</html>

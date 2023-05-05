@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import os
+from .secret import EMAIL_HOST, EMAIL_HOST_PASSWORD, EMAIL_USER
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,7 +28,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-# Application definition
 
 INSTALLED_APPS = [
     "tinymce",
@@ -128,12 +128,18 @@ LOGIN_REDIRECT_URL = "/"
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 DATETIME_INPUT_FORMATS = ['%Y-%m-%dT%H:%M:%S.%fz', '%Y-%m-%dT%H:%M:%S.%f', '%Y-%m-%dT%H:%M:%S', '%Y-%m-%d %H:%M:%S']
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = EMAIL_USER
+EMAIL_HOST = EMAIL_HOST
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = EMAIL_USER
+EMAIL_HOST_PASSWORD = EMAIL_HOST_PASSWORD
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
-# tinymice appsas adminui + html galimybe TextField readagavimui
+
 TINYMCE_DEFAULT_CONFIG = {
     'height': 360,
     'width': 1120,

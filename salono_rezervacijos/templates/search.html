@@ -5,7 +5,7 @@
 <ul>
     {% for salonas_obj in query_result_cntx %}
     <li>
-       <a href="{% url 'salonas_n' salonas_obj.id %}"> {{ salonas_obj.pavadinimas }}</a>, {{ salonas_obj.miestas}}
+       <a href="{% url 'salonas_n' salonas_obj.id %}"> {{ salonas_obj.pavadinimas }}</a>, {{ salonas_obj.miestas}}, {{ salonas_obj.paslauga_rn.specialistas_rn.vardas }}, {{ salonas_obj.paslauga_rn.specialistas_rn.pavarde }}
     </li>
     {% endfor %}
 </ul>

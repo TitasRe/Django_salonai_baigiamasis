@@ -1,0 +1,11 @@
+Mano projektas yra django salonu rezervaciju sistema.
+
+1. Galima sukurti salona
+2. Galima sukurti paslauga.
+3. Galima sukurti specialistus
+4. Galima palikti atsiliepimus
+5. Paslaugu rezervacija
+6. Prisijungimas/Registracija
+7. Vartotoju profilis
+8. Google maps api, kuris parodo kurioje vietoje randasi salonas
+9. Email issiuntimas automatiskai patvirtinantis rezervacija.
