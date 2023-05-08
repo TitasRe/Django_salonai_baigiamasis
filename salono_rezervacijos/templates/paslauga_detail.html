@@ -37,7 +37,12 @@
         {% else %}
         <p>Norėdami rezervuoti, turite <a href="{% url 'login' %}">prisijungti</a>.</p>
         {% endif %}
-
+        <br>
+        <h4>
+            Artimiausias laisvas laikas:
+        </h4>
+        <span>{{ laisvi_laikai }}</span>
+        <br>
         <br>
         <h4>Užimti laikai:</h4>
         <ul>

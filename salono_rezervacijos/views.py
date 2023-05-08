@@ -73,12 +73,40 @@ class PaslaugoaDetailView(generic.edit.FormMixin, generic.DetailView):
     """
     Paslaugos detalus view kuriame implementuota paslaugos uzsakymo forma
     su pasirinkimais datos ir laiko. Norima paslaugos rezervacija patikrinama butent
-    su tais kurie specialistai atlieka sia paslauga ir ar ju esamos rezervacijos nesikera su norima rezervacija
+    su tais kurie specialistai atlieka sia paslauga ir ar ju esamos rezervacijos nesikerta su norima rezervacija,
+    dar pridėjau artimiausia laiką
     """
     model = Paslauga
     context_object_name = 'paslauga'
     template_name = 'paslauga_detail.html'
     form_class = PaslaugosRezervacijaForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        reservations = PaslaugosRezervacija.objects.filter(paslaugos_id=self.object)
+        specialistai = Specialistas.objects.filter(paslaugos_id=self.object)
+
+        now = datetime.now()
+        time_list = []
+
+        for specialistas_obj in specialistai:
+            start_time = datetime.combine(datetime.today(), datetime.strptime('08:00', '%H:%M').time())
+            end_time = datetime.combine(datetime.today(), datetime.strptime('18:00', '%H:%M').time())
+            while start_time <= end_time:
+                if start_time >= now:
+                    time_list.append(start_time.strftime('%Y-%m-%d %H:%M:%S'))
+                start_time += timedelta(hours=1)
+
+        for rezervacijos_obj in reservations: #jei yra ismetu
+            rezervacijos_time_str = rezervacijos_obj.laikas_nuo.strftime('%Y-%m-%d %H:%M:%S')
+            if rezervacijos_time_str in time_list:
+                time_list.remove(rezervacijos_time_str)
+
+        if not time_list:
+            time_list.append("Šiandien laisvų laikų neturime")
+
+        context['laisvi_laikai'] = min(time_list)
+        return context
 
     # sekmes atvieju nuves cia
     def get_success_url(self):
@@ -235,17 +263,23 @@ def search(request):
     Pagal ka vartotojas gales ieskoti
     """
     query_text = request.GET['search_text']
+    query_result2 = Specialistas.objects.filter(paslaugos_id__title__icontains=query_text)
+    query_result_paslaugos_specialistai = Specialistas.objects.filter(paslaugos_id__title__icontains=query_text)
     query_result = Salonas.objects.filter(
         Q(pavadinimas__icontains=query_text) |
-        Q(miestas__icontains=query_text) |
-        Q(paslauga_rn__title__icontains=query_text) |
-        Q(paslauga_rn__specialistas_rn__vardas__icontains=query_text) |
-        Q(paslauga_rn__specialistas_rn__pavarde__icontains=query_text) |
-        Q(paslauga_rn__specialistas_rn__vardas__icontains=query_text) |
-        Q(paslauga_rn__specialistas_rn__pavarde__icontains=query_text))
+        Q(miestas__icontains=query_text)
+        # Q(paslauga_rn__title__icontains=query_text) |
+        # Q(paslauga_rn__specialistas_rn__vardas__icontains=query_text) |
+        # Q(paslauga_rn__specialistas_rn__pavarde__icontains=query_text) |
+        # Q(paslauga_rn__specialistas_rn__vardas__icontains=query_text) |
+        # Q(paslauga_rn__specialistas_rn__pavarde__icontains=query_text))
+    )
     data = {
         'query_text_cntx': query_text,
         'query_result_cntx': query_result,
+        'query_result_paslauga': query_result2,
+        'query_result_paslaugos_specialistai': query_result_paslaugos_specialistai,
+
     }
     return render(request, "search.html", context=data)
 

@@ -1,15 +1,42 @@
-{% extends "base.html" %} {% block content %}
-<h1>Paieskos pagal "{{ query_text_cntx }}" rezultatai:</h1>
+{% extends "base.html" %}
+{% block content %}
+<h1>Paieškos pagal "{{ query_text_cntx }}" rezultatai:</h1>
 <hr />
+
 {% if query_result_cntx %}
-<ul>
-    {% for salonas_obj in query_result_cntx %}
-    <li>
-       <a href="{% url 'salonas_n' salonas_obj.id %}"> {{ salonas_obj.pavadinimas }}</a>, {{ salonas_obj.miestas}}, {{ salonas_obj.paslauga_rn.specialistas_rn.vardas }}, {{ salonas_obj.paslauga_rn.specialistas_rn.pavarde }}
-    </li>
-    {% endfor %}
-</ul>
-{% else %}
-<p>Nieko nerasta...</p>
+    <h2>Salonai:</h2>
+    <ul>
+        {% for salonas_obj in query_result_cntx %}
+            <li>
+                <a href="{% url 'salonas_n' salonas_obj.id %}">{{ salonas_obj.pavadinimas }}</a>
+                {% for paslauga_obj in salonas_obj.paslauga_rn.all %}
+                {% endfor %}
+                , {{ salonas_obj.miestas}}
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+{% if query_result_paslaugos_specialistai %}
+    <h2>Specialistai:</h2>
+    <ul>
+        {% for specialistas_obj in query_result_paslaugos_specialistai %}
+            <li>
+                {{ specialistas_obj.vardas }} {{ specialistas_obj.pavarde }}
+                <a href="{% url 'paslauga-detail_n' specialistas_obj.paslaugos_id.id %}">{{ specialistas_obj.paslaugos_id.title }}</a>
+                <ul>
+                    {% for paslauga_obj in specialistas_obj.paslaugos_id.all %}
+                        {% if paslauga_obj.title == query_text_cntx %}
+                            <li>{{ paslauga_obj.title }}</li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
+{% if not query_result_cntx and not query_result_paslauga %}
+    <p>Nieko nerasta...</p>
 {% endif %}
 {% endblock %}
+
